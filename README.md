@@ -1,5 +1,187 @@
 # test
 This is a test-repository
+
+<details><summary>values.yaml</summary>
+<p>
+
+#### This is the values.yaml-file of CAM 3.1.3
+
 ```YAML
-  image: true
-  tag: 3.2.1
+# ##############################################################################
+# Licensed Materials - Property of IBM.
+# Copyright IBM Corporation 2017. All Rights Reserved.
+# U.S. Government Users Restricted Rights - Use, duplication or disclosure
+# restricted by GSA ADP Schedule Contract with IBM Corp.
+#
+# Contributors:
+#  IBM Corporation - initial API and implementation
+# ##############################################################################
+---
+global:
+  image:
+    secretName: "docker-push-pull-secret"
+  id:
+    productID: "IBMCloudAutomationManager_5737E67_3121_EE_000"
+  iam:
+    deployApiKey: "1VAmX3YhowgIxf2plwnX4nQYJ8goy1eVZssyBb7BRqLn"
+  offline: true
+  audit: false
+# arch: ppc64le
+# arch: s390x
+arch: amd64
+service:
+  namespace: services
+managementConsole:
+  port: 30000
+
+secureValues:
+  secretName:
+database:
+  bundled: true
+image:
+  repository: "mycluster.icp:8500/services/"
+  tag: 3.1.2.1
+  pullPolicy: IfNotPresent
+  dockerconfig: ""
+proxy:
+  useProxy: false
+camMongoPV:
+  name: "cam-mongo-pv"
+  persistence:
+    enabled: true
+    useDynamicProvisioning: false
+    # Specify the name of the Existing Claim to be used by your application
+    # empty string means don't use an existClaim
+    existingClaimName: "cam-mongo-pvc"
+    # Specify the name of the StorageClass
+    # empty string means don't use a StorageClass
+    storageClassName: ""
+    accessMode: ReadWriteMany
+    size: 15Gi
+camLogsPV:
+  name: "cam-logs-pv"
+  persistence:
+    enabled: true
+    useDynamicProvisioning: false
+    # Specify the name of the Existing Claim to be used by your application
+    # empty string means don't use an existClaim
+    existingClaimName: "cam-logs-pvc"
+    # Specify the name of the StorageClass
+    # empty string means don't use a StorageClass
+    storageClassName: ""
+    accessMode: ReadWriteMany
+    size: 10Gi
+camTerraformPV:
+  name: "cam-terraform-pv"
+  persistence:
+    enabled: true
+    useDynamicProvisioning: false
+    # Specify the name of the Existing Claim to be used by your application
+    # empty string means don't use an existClaim
+    existingClaimName: "cam-terraform-pvc"
+    # Specify the name of the StorageClass
+    # empty string means don't use a StorageClass
+    storageClassName: ""
+    accessMode: ReadWriteMany
+    size: 15Gi
+camBPDAppDataPV:
+  name: "cam-bpd-appdata-pv"
+  persistence:
+    enabled: true
+    useDynamicProvisioning: false
+    existingClaimName: "cam-bpd-appdata-pvc"
+    storageClassName: ""
+    accessMode: ReadWriteMany
+    size: 15Gi
+camBroker:
+  replicaCount: 1
+camProxy:
+  replicaCount: 1
+camAPI:
+  replicaCount: 1
+  camSecret:
+    secretName: cam-api-secret
+  certificate:
+    certName: cert
+camUI:
+  replicaCount: 1
+  camUISecret:
+    secretName: cam-ui-secret
+    sessionKey: "opsConsole.sid"
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 1
+    memory: 8Gi
+camBPDUI:
+  bundled: true
+camBPDCDS:
+  replicaCount: 1
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+  options:
+    debug:
+      enabled: false
+    customSettingsFile: ""
+camBPDMDS:
+  replicaCount: 1
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+camBPDDatabase:
+  bundled: true
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+camBPDExternalDatabase:
+  type: ""
+  name: ""
+  url: ""
+  port: ""
+  secret: ""
+  extlibPV:
+    existingClaimName: ""
+camBPDResources:
+  requests:
+    cpu: 1000m
+    memory: 1Gi
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+auditService:
+  image:
+    repository: "mycluster.icp:8500/ibmcom/"
+    tag: ""
+    pullPolicy: IfNotPresent
+    pullSecret: ""
+  resources:
+    limits:
+      cpu: 200m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  config:
+    journalPath: '/run/systemd/journal'
+camLoggingPolicies:
+  logLevel: info
+camBpmProvider:
+  replicaCount: 0
+camIcoProvider:
+  replicaCount: 0
+```
+
+</p>
+</details>
