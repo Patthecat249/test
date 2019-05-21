@@ -1,5 +1,129 @@
-# test
-This is a test-repository
+# How to Install Cloud Automation Manager (CAM) in an Offline-Installation with CLI
+
+## Introduction
+This describe the process of the Installation of Cloud Automation Manager 3.1.2.1 on ICP 3.1.2.
+Please go through the complete Installation-Procedure to become familiar with the procedure!
+Change the Variables as you need!
+Login to the ICP-Master-Node and don't leave the Session (cause of temporary Shell-Variables)!
+
+## Preparation
+### Create Installation/Download-Folder 
+This folder is needed to place this installation-file.
+#VARIABLES BEGIN#
+```bash
+export INST=/install
+```
+#VARIABLES END#
+```bash
+mkdir -p ${INST}
+```
+## Create NFS-folders
+#These are the root-Folders of your PVs of the CAM-Installation
+#VARIABLES BEGIN#
+```bash
+NFSPATH="/nfs/shared/cam"
+```
+#VARIABLES END#
+```bash
+mkdir -p \
+     ${NFSPATH}/cam_db \
+     ${NFSPATH}/cam_terraform/cam-provider-terraform \
+     ${NFSPATH}/cam_logs/cam-provider-terraform \
+     ${NFSPATH}/cam_bpd_appdata/mysql \
+     ${NFSPATH}/cam_bpd_appdata/repositories \
+     ${NFSPATH}/cam_bpd_appdata/workspace
+chmod -R 2775 \
+  ${NFSPATH}/CAM_db \
+  ${NFSPATH}/CAM_logs \
+  ${NFSPATH}/CAM_terraform \
+  ${NFSPATH}/CAM_BPD_appdata
+
+chown -R root:1000 \
+  ${NFSPATH}/CAM_logs \
+  ${NFSPATH}/CAM_BPD_appdata
+
+chown -R root:1111 \
+  ${NFSPATH}/CAM_terraform \
+  ${NFSPATH}/CAM_logs/cam-provider-terraform
+
+chown -R 999:999 \
+  ${NFSPATH}/CAM_BPD_appdata/mysql \
+  ${NFSPATH}/CAM_db
+```
+## Configure NFS-Exports-File and Exports NFS-Folder
+```bash
+echo "${NFSPATH} *(rw,nohide,insecure,no_subtree_check,async,no_root_squash)" >> /etc/exports
+exportfs -a
+```
+
+## Download Installation File from IBM Fix Central
+https://www-945.ibm.com/support/fixcentral
+Download from IBM Fix Central > Search for "icp-cam-x86_64-3.1.2.1.tar.gz"
+**!!! Top Right Corner !!!**
+
+Download "x86 - icp-cam-x86_64-3.1.2.1.tar.gz"
+ll ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz 
+
+-rw-r--r-- 1 root root 10266055420 May 20 10:20 /install/icp-cam-x86_64-3.1.2.1.tar.gz
+
+## Extract Chart for customizing values.yaml
+### List content
+```bash
+tar -tf ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz
+```
+
+### Extract Content (only chart)
+```bash
+tar -xvf ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz charts/ibm-cam-3.1.3.tgz
+tar -xf ${INST}/charts/ibm-cam-3.1.3.tgz
+```
+## Load and PUSH Images from TAR-File to ICP-Registry
+```bash
+#VARIABLES BEGIN#
+export CLOUDCTLUSER="admin"
+export CLOUDCTLPASS="admin"
+export ICPCLUSTER="mycluster.icp"
+export DOCKERPORT="8500"
+#VARIABLES END#
+cloudctl login -a https://${ICPCLUSTER}:8443 --skip-ssl-validation -u ${CLOUDCTLUSER} -p ${CLOUDCTLPASS} -n services 
+docker login ${ICPCLUSTER}:${DOCKERPORT} -u ${CLOUDCTLUSER} -p ${CLOUDCTLPASS}  
+cd ${INST}
+cloudctl catalog load-archive --archive icp-cam-x86_64-3.1.2.1.tar.gz
+```
+## Start Installation Process
+Generate a deployment ServiceID API Key
+- Important: NOTICE and capture the API-Key from the output of the following commands!!! It is needed later in the "values.yaml"-file
+
+```bash
+#VARIABLES BEGIN#
+export serviceIDName='service-deploy'
+export serviceApiKeyName='service-deploy-api-key'
+#VARIABLES END#
+cloudctl login -a https://${ICPCLUSTER}:8443 --skip-ssl-validation -u ${CLOUDCTLUSER} -p ${CLOUDCTLPASS} -n services
+cloudctl iam service-id-create ${serviceIDName} -d 'Service ID for service-deploy'
+cloudctl iam service-policy-create ${serviceIDName} -r Administrator,ClusterAdministrator --service-name 'idmgmt'
+cloudctl iam service-policy-create ${serviceIDName} -r Administrator,ClusterAdministrator --service-name 'identity'
+cloudctl iam service-api-key-create ${serviceApiKeyName} ${serviceIDName} -d 'Api key for service-deploy'
+```
+## Create ImagePullSecret
+Is needed for the Installation process of CAM, so that the installation pods can access the ICP-Docker-Registry, where the Images are stored for the offline-installation.
+```bash
+#VARIABLES BEGIN#
+export SECRET_NAME="docker-push-pull-secret"
+#VARIABLES END#
+kubectl create secret docker-registry ${SECRET_NAME} \
+--docker-server="${ICPCLUSTER}:${DOCKERPORT}" \
+--docker-username="${CLOUDCTLUSER}" \
+--docker-password="${CLOUDCTLPASS}" \
+--docker-email="admin@admin.local" \
+--namespace=services
+```
+
+
+
+
+
+
 
 <details><summary>values.yaml</summary>
 <p>
