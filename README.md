@@ -19,12 +19,9 @@ mkdir -p ${INST}
 ```
 ## Create NFS-folders
 #These are the root-Folders of your PVs of the CAM-Installation
-#VARIABLES BEGIN#
+
 ```bash
 NFSPATH="/nfs/shared/cam"
-```
-#VARIABLES END#
-```bash
 mkdir -p \
      ${NFSPATH}/cam_db \
      ${NFSPATH}/cam_terraform/cam-provider-terraform \
@@ -33,22 +30,22 @@ mkdir -p \
      ${NFSPATH}/cam_bpd_appdata/repositories \
      ${NFSPATH}/cam_bpd_appdata/workspace
 chmod -R 2775 \
-  ${NFSPATH}/CAM_db \
-  ${NFSPATH}/CAM_logs \
-  ${NFSPATH}/CAM_terraform \
-  ${NFSPATH}/CAM_BPD_appdata
+  ${NFSPATH}/cam_db \
+  ${NFSPATH}/cam_logs \
+  ${NFSPATH}/cam_terraform \
+  ${NFSPATH}/cam_bpd_appdata
 
 chown -R root:1000 \
-  ${NFSPATH}/CAM_logs \
-  ${NFSPATH}/CAM_BPD_appdata
+  ${NFSPATH}/cam_logs \
+  ${NFSPATH}/cam_bpd_appdata
 
 chown -R root:1111 \
-  ${NFSPATH}/CAM_terraform \
-  ${NFSPATH}/CAM_logs/cam-provider-terraform
+  ${NFSPATH}/cam_terraform \
+  ${NFSPATH}/cam_logs/cam-provider-terraform
 
 chown -R 999:999 \
-  ${NFSPATH}/CAM_BPD_appdata/mysql \
-  ${NFSPATH}/CAM_db
+  ${NFSPATH}/cam_bpd_appdata/mysql \
+  ${NFSPATH}/cam_db
 ```
 ## Configure NFS-Exports-File and Exports NFS-Folder
 ```bash
@@ -61,11 +58,11 @@ https://www-945.ibm.com/support/fixcentral
 Download from IBM Fix Central > Search for "icp-cam-x86_64-3.1.2.1.tar.gz"
 **!!! Top Right Corner !!!**
 
-Download "x86 - icp-cam-x86_64-3.1.2.1.tar.gz"
-ll ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz 
-
+**The Output should look like**
+```bash
+ll ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz
 -rw-r--r-- 1 root root 10266055420 May 20 10:20 /install/icp-cam-x86_64-3.1.2.1.tar.gz
-
+```
 ## Extract Chart for customizing values.yaml
 ### List content
 ```bash
@@ -77,7 +74,14 @@ tar -tf ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz
 tar -xvf ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz charts/ibm-cam-3.1.3.tgz
 tar -xf ${INST}/charts/ibm-cam-3.1.3.tgz
 ```
+*The Chart will e extracted, but we will come back later to editing the "values.yaml"-file.
+If you want to edit the values.yaml-file now, jump down to "Edit values.yaml"*
+
 ## Load and PUSH Images from TAR-File to ICP-Registry
+Let's push the images included in the tar-file to the ICP-Docker-Registry. The installation-process of CAM needs these images.
+1. Let's login to your ICP-Cluster in the "services" namespace
+2. Let's login to your ICP-Docker-Registry
+3. Load and push the images from tar-file into ICP-Docker-Registry
 ```bash
 #VARIABLES BEGIN#
 export CLOUDCTLUSER="admin"
@@ -93,6 +97,7 @@ cloudctl catalog load-archive --archive icp-cam-x86_64-3.1.2.1.tar.gz
 ## Start Installation Process
 Generate a deployment ServiceID API Key
 - Important: NOTICE and capture the API-Key from the output of the following commands!!! It is needed later in the "values.yaml"-file
+- You need to capture the encrypted string, not just the name of the api-key.
 
 ```bash
 #VARIABLES BEGIN#
@@ -107,6 +112,7 @@ cloudctl iam service-api-key-create ${serviceApiKeyName} ${serviceIDName} -d 'Ap
 ```
 ## Create ImagePullSecret
 Is needed for the Installation process of CAM, so that the installation pods can access the ICP-Docker-Registry, where the Images are stored for the offline-installation.
+
 ```bash
 #VARIABLES BEGIN#
 export SECRET_NAME="docker-push-pull-secret"
@@ -125,10 +131,14 @@ kubectl create secret docker-registry ${SECRET_NAME} \
 
 
 
-<details><summary>values.yaml</summary>
+<details><summary>Edit values.yaml</summary>
 <p>
 
-#### This is the values.yaml-file of CAM 3.1.3
+#### This is the values.yaml-file of the CAM-3.1.3-Chart
+You can copy&paste the following content into a file, where you refer to later, when you install the CAM-Chart with the "helm install -f values.yaml"-command.
+
+Please, make sure, that you change the necessary parts in the values.yaml-file to your environment. 
+If you have done everything step-by-step in this tutorial, then you only have to change the **API-KEY**
 
 ```YAML
 # ##############################################################################
