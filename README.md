@@ -6,6 +6,15 @@ Please go through the complete Installation-Procedure to become familiar with th
 Change the Variables as you need!
 Login to the ICP-Master-Node and don't leave the Session (cause of temporary Shell-Variables)!
 
+## Requirements
+- ICP3.1.2 must be installed
+- CLIs must be installed and configured
+  - cloudctl
+  - kubectl
+  - helm
+- NFS-Server must be configured and accesible from all ICP-Nodes (Master, Proxy, Worker, ...)
+  - NFS-Client Software must be installed
+
 ## Preparation
 ### Create Installation/Download-Folder 
 This folder is needed to place this installation-file.
@@ -128,15 +137,15 @@ kubectl create secret docker-registry ${SECRET_NAME} \
 ## Edit the "values.yaml"
 *Please change the following values/parameters in the values.yaml-file*
 
-- global.image.secret=*docker-push-pull-secret*
-- global.iam.deployApiKey=*CrypticCodeFromTheDeploymentApiKey*
-- offline=*true*
-- service.namespace=*services*
-- image.repository=*"mycluster.icp:8500/services/"*
-- camMongoPV.existingClaimName=*"cam-mongo-pvc"*
-- camLogsPV.existingClaimName=*"cam-logs-pvc"*
-- camTerraformPV.existingClaimName=*"cam-terraform-pvc"*
-- camBPDAppDataPV.existingClaimName=*"cam-bpd-appdata-pvc"*
+- **global.image.secret**=*docker-push-pull-secret*
+- **global.iam.deployApiKey**=*CrypticCodeFromTheDeploymentApiKey*
+- **offline**=*true*
+- **service.namespace**=*services*
+- **image.repository**=*"mycluster.icp:8500/services/"*
+- **camMongoPV.existingClaimName**=*"cam-mongo-pvc"*
+- **camLogsPV.existingClaimName**=*"cam-logs-pvc"*
+- **camTerraformPV.existingClaimName**=*"cam-terraform-pvc"*
+- **camBPDAppDataPV.existingClaimName**=*"cam-bpd-appdata-pvc"*
 
 <details><summary>Edit values.yaml</summary>
 <p>
@@ -343,36 +352,37 @@ echo $NFSPATH
 #VARIABLES BEGIN#
 #Kubectl-Path
 KUBECTLCLI="/usr/local/bin/kubectl"
-#VARIABLES
+#VARIABLES for the mongo-database
 AAA_PV_NAME="cam-mongo-pv"
 AAA_PVC_NAME="cam-mongo-pvc"
 AAA_LABEL="cam-mongo"
 AAA_SIZE="15Gi"
 
+#VARIABLES for the database-logs
 BBB_PV_NAME="cam-logs-pv"
 BBB_PVC_NAME="cam-logs-pvc"
 BBB_LABEL="cam_logs"
 BBB_SIZE="10Gi"
 
+#VARIABLES for terraform
 CCC_PV_NAME="cam-terraform-pv"
 CCC_PVC_NAME="cam-terraform-pvc"
 CCC_LABEL="cam-terraform"
 CCC_SIZE="15Gi"
 
+#VARIABLES for appdata
 DDD_PV_NAME="cam-bpd-appdata-pv"
 DDD_PVC_NAME="cam-bpd-appdata-pvc"
 DDD_LABEL="cam-bpd-appdata"
 DDD_SIZE="20Gi"
 
-# Allgemeine Variablen
-
+# General VARIABLES
 PVCPOLICY="Recycle"
 NFSSERVER="10.134.121.201"
 NAMESPACE="services"
-
 #VARIABLES END#
 
-# Ab hier startet das Script
+# The script starts here
 #--- Create PV cam-mongo-pv ---
 echo "--- Create PVC ${AAA_PV_NAME} ---"
 ${KUBECTLCLI} create -f - <<AAA
@@ -534,7 +544,8 @@ DDD
 ```
 **END COPY&PASTE**
 
-## Starten der Installation
+## Start Installation
+Please execute the follwing "helm"-command.
 ```bash
 cd ${INST}
 helm install --name cam -f charts/ibm-cam/values.yaml local-charts/ibm-cam --tls
@@ -546,4 +557,18 @@ You can check, if the installation of your CAM-deployment was successful. Please
 ```bash
 kubectl get -n services pods
 helm test cam --tls
+```
+## How to clean up your CAM-Deployment
+- uninstall the cam-helm-chart
+- remove pv's and pvc's **(PLEASE CHECK, that no OTHER PVs and PVCs-names begin with "cam"!!!)**
+
+```bash
+#Delete Helm Chart
+helm delete --purge cam --tls
+
+#Delete all PVCs in Namespace Service which name begins with "cam..."
+
+#Delete all PVs, which name begins with "cam..."
+
+
 ```
