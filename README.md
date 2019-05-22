@@ -3,8 +3,7 @@
 ## Introduction
 This describe the process of the Installation of Cloud Automation Manager 3.1.2.1 on ICP 3.1.2.
 Please go through the complete Installation-Procedure to become familiar with the procedure!
-Change the Variables as you need!
-Login to the ICP-Master-Node and don't leave the Session (cause of temporary Shell-Variables)!
+Change the Variables as you need it!
 
 ## Requirements
 - ICP3.1.2 must be installed
@@ -14,20 +13,22 @@ Login to the ICP-Master-Node and don't leave the Session (cause of temporary She
   - helm
 - NFS-Server must be configured and accesible from all ICP-Nodes (Master, Proxy, Worker, ...)
   - NFS-Client Software must be installed
+  - In this tutorial the NFS-Server is installed on the ICP-Master-Node
+
+## How to use this manual
+Open the CLI (ssh into) on your ICP-Master-Node. Copy the BASH-Content from this page into the CLI and execute it. Please customize the variables, if you want to make changes.
 
 ## Preparation
 ### Create Installation/Download-Folder 
-This folder is needed to place this installation-file.
-#VARIABLES BEGIN#
+This folder is needed to place the installation-tar-file from IBM Fix Central.
+
 ```bash
 export INST=/install
-```
-#VARIABLES END#
-```bash
 mkdir -p ${INST}
 ```
+
 ## Create NFS-folders
-#These are the root-Folders of your PVs of the CAM-Installation
+#These Folders will be used during the CAM-Installation
 
 ```bash
 NFSPATH="/nfs/shared/cam"
