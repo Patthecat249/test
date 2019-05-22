@@ -125,11 +125,18 @@ kubectl create secret docker-registry ${SECRET_NAME} \
 --namespace=services
 ```
 
+## Edit the "values.yaml"
+*Please change the following values/parameters in the values.yaml-file*
 
-
-
-
-
+- global.image.secret=*docker-push-pull-secret*
+- global.iam.deployApiKey=*CrypticCodeFromTheDeploymentApiKey*
+- offline=*true*
+- service.namespace=*services*
+- image.repository=*"mycluster.icp:8500/services/"*
+- camMongoPV.existingClaimName=*"cam-mongo-pvc"*
+- camLogsPV.existingClaimName=*"cam-logs-pvc"*
+- camTerraformPV.existingClaimName=*"cam-terraform-pvc"*
+- camBPDAppDataPV.existingClaimName=*"cam-bpd-appdata-pvc"*
 
 <details><summary>Edit values.yaml</summary>
 <p>
@@ -319,3 +326,224 @@ camIcoProvider:
 
 </p>
 </details>
+
+## Create PVs and PVCs (One Script) (Login ICP-Master-Node)
+- First, you have to customize the variables
+- Then copy&paste the output into the CLI of the ICP-Master-Nodes. 
+
+### Tipp:
+*Are you in the same session from the beginning of this tutorial? 
+- yes=everything should be fine
+- no=the Variable **NFSPATH** must be set and will be used!*
+
+**BEGIN COPY&PASTE**
+```bash
+echo $NFSPATH
+
+#VARIABLES BEGIN#
+#Kubectl-Path
+KUBECTLCLI="/usr/local/bin/kubectl"
+#VARIABLES
+AAA_PV_NAME="cam-mongo-pv"
+AAA_PVC_NAME="cam-mongo-pvc"
+AAA_LABEL="cam-mongo"
+AAA_SIZE="15Gi"
+
+BBB_PV_NAME="cam-logs-pv"
+BBB_PVC_NAME="cam-logs-pvc"
+BBB_LABEL="cam_logs"
+BBB_SIZE="10Gi"
+
+CCC_PV_NAME="cam-terraform-pv"
+CCC_PVC_NAME="cam-terraform-pvc"
+CCC_LABEL="cam-terraform"
+CCC_SIZE="15Gi"
+
+DDD_PV_NAME="cam-bpd-appdata-pv"
+DDD_PVC_NAME="cam-bpd-appdata-pvc"
+DDD_LABEL="cam-bpd-appdata"
+DDD_SIZE="20Gi"
+
+# Allgemeine Variablen
+
+PVCPOLICY="Recycle"
+NFSSERVER="10.134.121.201"
+NAMESPACE="services"
+
+#VARIABLES END#
+
+# Ab hier startet das Script
+#--- Create PV cam-mongo-pv ---
+echo "--- Create PVC ${AAA_PV_NAME} ---"
+${KUBECTLCLI} create -f - <<AAA
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: "${AAA_PV_NAME}"
+  labels:
+    type: "${AAA_LABEL}"
+spec:
+  accessModes:
+    - ReadWriteMany
+  capacity:
+    storage: "${AAA_SIZE}"
+  persistentVolumeReclaimPolicy: "${PVCPOLICY}"
+  nfs:
+    server: "${NFSSERVER}"
+    path: "${NFSPATH}/cam_db"
+AAA
+#--- Create PVC cam-mongo-pvc ---
+echo "--- Create PVC ${AAA_PVC_NAME} ---"
+${KUBECTLCLI} create -f - <<AAA
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "${AAA_PVC_NAME}"
+  namespace: "${NAMESPACE}"
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: "${AAA_SIZE}"
+  volumeName: "${AAA_PV_NAME}"
+  selector:
+    matchLabels:
+      type: "${AAA_LABEL}"
+AAA
+
+#--- Create PV cam-logs-pv ---
+echo "--- Create PVC ${BBB_PV_NAME} ---"
+${KUBECTLCLI} create -f - <<BBB
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: "${BBB_PV_NAME}"
+  labels:
+    type: "${BBB_LABEL}"
+spec:
+  accessModes:
+    - ReadWriteMany
+  capacity:
+    storage: "${BBB_SIZE}"
+  persistentVolumeReclaimPolicy: "${PVCPOLICY}"
+  nfs:
+    server: "${NFSSERVER}"
+    path: "${NFSPATH}/cam_logs"
+BBB
+
+#--- Create PVC cam-logs-pvc ---
+echo "--- Create PVC ${BBB_PVC_NAME} ---"
+${KUBECTLCLI} create -f - <<BBB
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "${BBB_PVC_NAME}"
+  namespace: "${NAMESPACE}"
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: "${BBB_SIZE}"
+  volumeName: "${BBB_PV_NAME}"
+  selector:
+    matchLabels:
+      type: "${BBB_LABEL}"
+BBB
+
+#--- Create PV cam-terraform-pv ---
+echo "--- Create PVC ${PV_NAME} ---"
+${KUBECTLCLI} create -f - <<CCC
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: "${PV_NAME}"
+  labels:
+    type: "${CCC_LABEL}"
+spec:
+  accessModes:
+    - ReadWriteMany
+  capacity:
+    storage: "${SIZE}"
+  persistentVolumeReclaimPolicy: "${PVCPOLICY}"
+  nfs:
+    server: "${NFSSERVER}"
+    path: "${NFSPATH}/cam_terraform"
+CCC
+
+#--- Create PVC cam-terraform-pvc ---
+echo "--- Create PVC ${PVC_NAME} ---"
+${KUBECTLCLI} create -f - <<CCC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "${PVC_NAME}"
+  namespace: "${NAMESPACE}"
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: "${SIZE}"
+  volumeName: "${PV_NAME}"
+  selector:
+    matchLabels:
+      type: "${CCC_LABEL}"
+CCC
+
+#--- Create PV cam-bpd-appdata-pv ---
+echo "--- Create PVC ${DDD_PV_NAME} ---"
+${KUBECTLCLI} create -f - <<DDD
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: "${DDD_PV_NAME}"
+  labels:
+    type: "${DDD_LABEL}"
+spec:
+  accessModes:
+    - ReadWriteMany
+  capacity:
+    storage: "${DDD_SIZE}"
+  persistentVolumeReclaimPolicy: "${PVCPOLICY}"
+  nfs:
+    server: "${NFSSERVER}"
+    path: "${NFSPATH}/cam_bpd_appdata"
+DDD
+
+#--- Create PVC cam-bpd-appdata-pvc ---
+echo "--- Create PVC ${DDD_PVC_NAME} ---"
+${KUBECTLCLI} create -f - <<DDD
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "${DDD_PVC_NAME}"
+  namespace: "${NAMESPACE}"
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: "${DDD_SIZE}"
+  volumeName: "${DDD_PV_NAME}"
+  selector:
+    matchLabels:
+      type: "${DDD_LABEL}"
+DDD
+```
+**END COPY&PASTE**
+
+## Starten der Installation
+```bash
+cd ${INST}
+helm install --name cam -f charts/ibm-cam/values.yaml local-charts/ibm-cam --tls
+```
+
+## Verify Installation
+You can check, if the installation of your CAM-deployment was successful. Please execute the following commands. All PODs must have a "1" in the column "Available"
+
+```bash
+kubectl get -n services pods
+helm test cam --tls
+```
