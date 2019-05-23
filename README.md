@@ -80,13 +80,15 @@ ll ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz
 ## (Optional) Extract Chart for customizing values.yaml
 ### List content
 ```bash
+cd $INST
 tar -tf ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz
  
 ```
 
 ### Extract Content (only chart)
 ```bash
-tar -xvf ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz $INST/charts/ibm-cam-3.1.3.tgz
+cd $INST
+tar -xvf ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz charts/ibm-cam-3.1.3.tgz
 tar -xvf ${INST}/charts/ibm-cam-3.1.3.tgz
  
 ```
