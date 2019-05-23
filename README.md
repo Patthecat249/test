@@ -25,7 +25,7 @@ This folder is needed to place the installation-tar-file from IBM Fix Central.
 ```bash
 export INST=/install
 mkdir -p ${INST}
-
+ 
 ```
 
 ## Create NFS-folders
@@ -57,13 +57,13 @@ chown -R root:1111 \
 chown -R 999:999 \
   ${NFSPATH}/cam_bpd_appdata/mysql \
   ${NFSPATH}/cam_db
-  
+   
 ```
 ## Configure NFS-Exports-File and Exports NFS-Folder
 ```bash
 echo "${NFSPATH} *(rw,nohide,insecure,no_subtree_check,async,no_root_squash)" >> /etc/exports
 exportfs -a
-
+ 
 ```
 
 ## Download Installation File from IBM Fix Central
@@ -74,21 +74,21 @@ Download from IBM Fix Central > Search for "icp-cam-x86_64-3.1.2.1.tar.gz"
 **The Output should look like**
 ```bash
 ll ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz
-
+ 
 -rw-r--r-- 1 root root 10266055420 May 20 10:20 /install/icp-cam-x86_64-3.1.2.1.tar.gz
 ```
 ## (Optional) Extract Chart for customizing values.yaml
 ### List content
 ```bash
 tar -tf ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz
-
+ 
 ```
 
 ### Extract Content (only chart)
 ```bash
 tar -xvf ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz $INST/charts/ibm-cam-3.1.3.tgz
 tar -xvf ${INST}/charts/ibm-cam-3.1.3.tgz
-
+ 
 ```
 *The Chart will be extracted, but we will come back later to editing the "values.yaml"-file.
 If you want to edit the values.yaml-file now, jump down to "Edit values.yaml"*
@@ -109,7 +109,7 @@ cloudctl login -a https://${ICPCLUSTER}:8443 --skip-ssl-validation -u ${CLOUDCTL
 docker login ${ICPCLUSTER}:${DOCKERPORT} -u ${CLOUDCTLUSER} -p ${CLOUDCTLPASS}  
 cd ${INST}
 cloudctl catalog load-archive --archive icp-cam-x86_64-3.1.2.1.tar.gz
-
+ 
 ```
 ## Start Installation Process
 Generate a deployment ServiceID API Key
@@ -126,7 +126,7 @@ cloudctl iam service-id-create ${serviceIDName} -d 'Service ID for service-deplo
 cloudctl iam service-policy-create ${serviceIDName} -r Administrator,ClusterAdministrator --service-name 'idmgmt'
 cloudctl iam service-policy-create ${serviceIDName} -r Administrator,ClusterAdministrator --service-name 'identity'
 cloudctl iam service-api-key-create ${serviceApiKeyName} ${serviceIDName} -d 'Api key for service-deploy'
-
+ 
 ```
 ## Create ImagePullSecret
 Is needed for the Installation process of CAM, so that the installation pods can access the ICP-Docker-Registry, where the Images are stored for the offline-installation.
@@ -141,7 +141,7 @@ kubectl create secret docker-registry ${SECRET_NAME} \
 --docker-password="${CLOUDCTLPASS}" \
 --docker-email="admin@admin.local" \
 --namespace=services
-
+ 
 ```
 
 ## Edit the "values.yaml"
@@ -551,7 +551,7 @@ spec:
     matchLabels:
       type: "${DDD_LABEL}"
 DDD
-
+ 
 ```
 **END COPY&PASTE**
 
@@ -560,7 +560,7 @@ Please execute the follwing "helm"-command.
 ```bash
 cd ${INST}
 helm install --name cam -f charts/ibm-cam/values.yaml local-charts/ibm-cam --tls
-
+ 
 ```
 
 ## Verify Installation
@@ -569,7 +569,7 @@ You can check, if the installation of your CAM-deployment was successful. Please
 ```bash
 kubectl get -n services pods
 helm test cam --tls
-
+ 
 ```
 ## How to clean up your CAM-Deployment
 - uninstall the cam-helm-chart
@@ -594,5 +594,5 @@ cloudctl iam service-id-delete service-cloud-automation-manager
 #Delete NFS-Folder
 NFSPATH="/nfs/shared/cam"
 rm -rf $NFSPATH
-
+ 
 ```
