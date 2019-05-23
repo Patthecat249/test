@@ -508,7 +508,7 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: "${SIZE}"
+      storage: "${CCC_SIZE}"
   volumeName: "${PV_NAME}"
   selector:
     matchLabels:
