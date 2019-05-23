@@ -554,9 +554,9 @@ spec:
     matchLabels:
       type: "${DDD_LABEL}"
 DDD
-# Show PV's and PVC's
-k get pvc | grep cam | awk '{print $1}'
-k get pv | grep cam | awk '{print $1}'
+# Show if PV's and PVC's are created
+k get pvc | grep cam
+k get pv | grep cam
  
 ```
 **END COPY&PASTE**
