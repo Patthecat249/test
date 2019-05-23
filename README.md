@@ -89,6 +89,7 @@ tar -tf ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz
 ```bash
 cd $INST
 tar -xvf ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz charts/ibm-cam-3.1.3.tgz
+cd charts
 tar -xvf ${INST}/charts/ibm-cam-3.1.3.tgz
  
 ```
