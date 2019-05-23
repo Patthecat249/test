@@ -476,19 +476,19 @@ spec:
 BBB
 
 #--- Create PV cam-terraform-pv ---
-echo "--- Create PVC ${PV_NAME} ---"
+echo "--- Create PVC ${CCC_PV_NAME} ---"
 ${KUBECTLCLI} create -f - <<CCC
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: "${PV_NAME}"
+  name: "${CCC_PV_NAME}"
   labels:
     type: "${CCC_LABEL}"
 spec:
   accessModes:
     - ReadWriteMany
   capacity:
-    storage: "${SIZE}"
+    storage: "${CCC_SIZE}"
   persistentVolumeReclaimPolicy: "${PVCPOLICY}"
   nfs:
     server: "${NFSSERVER}"
@@ -496,12 +496,12 @@ spec:
 CCC
 
 #--- Create PVC cam-terraform-pvc ---
-echo "--- Create PVC ${PVC_NAME} ---"
+echo "--- Create PVC ${CCC_PVC_NAME} ---"
 ${KUBECTLCLI} create -f - <<CCC
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: "${PVC_NAME}"
+  name: "${CCC_PVC_NAME}"
   namespace: "${NAMESPACE}"
 spec:
   accessModes:
@@ -509,7 +509,7 @@ spec:
   resources:
     requests:
       storage: "${CCC_SIZE}"
-  volumeName: "${PV_NAME}"
+  volumeName: "${CCC_PV_NAME}"
   selector:
     matchLabels:
       type: "${CCC_LABEL}"
