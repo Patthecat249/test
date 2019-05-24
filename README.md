@@ -1,5 +1,6 @@
 # How to Install Cloud Automation Manager (CAM) in an Offline-Installation with CLI
 
+## General
 <details><summary>Introduction</summary>
 <p>
 ## Introduction
@@ -134,6 +135,8 @@ tar -xvf ${INST}/charts/ibm-cam-3.1.3.tgz
 If you want to edit the values.yaml-file now, jump down to "Edit values.yaml"*
 </p>
 </details>
+
+## Installation
 
 <details><summary>Load and PUSH Images from TAR-File to ICP-Registry</summary>
 <p>
@@ -640,6 +643,9 @@ helm test cam --tls
 ```
 </p>
 </details>
+
+## Remove/Delete the Installation
+
 <details><summary>How to clean up your CAM-Deployment</summary>
 <p>
 ## How to clean up your CAM-Deployment
