@@ -137,8 +137,9 @@ Is needed for the Installation process of CAM, so that the installation pods can
 ```bash
 #VARIABLES BEGIN#
 export SECRET_NAME="docker-push-pull-secret"
+export KUBECTLCLI="/usr/local/bin/kubectl"
 #VARIABLES END#
-kubectl create secret docker-registry ${SECRET_NAME} \
+${KUBECTLCLI} create secret docker-registry ${SECRET_NAME} \
 --docker-server="${ICPCLUSTER}:${DOCKERPORT}" \
 --docker-username="${CLOUDCTLUSER}" \
 --docker-password="${CLOUDCTLPASS}" \
@@ -363,8 +364,6 @@ camIcoProvider:
 echo $NFSPATH
 
 #VARIABLES BEGIN#
-#Kubectl-Path
-KUBECTLCLI="/usr/local/bin/kubectl"
 #VARIABLES for the mongo-database
 AAA_PV_NAME="cam-mongo-pv"
 AAA_PVC_NAME="cam-mongo-pvc"
@@ -555,8 +554,8 @@ spec:
       type: "${DDD_LABEL}"
 DDD
 # Show if PV's and PVC's are created
-k get pvc | grep cam
-k get pv | grep cam
+${KUBECTLCLI} get pvc | grep cam
+${KUBECTLCLI} get pv | grep cam
  
 ```
 **END COPY&PASTE**
@@ -573,7 +572,7 @@ helm install --name cam -f charts/ibm-cam/values.yaml local-charts/ibm-cam --tls
 You can check, if the installation of your CAM-deployment was successful. Please execute the following commands. All PODs must have a "1" in the column "Available"
 
 ```bash
-kubectl get -n services pods
+${KUBECTLCLI} get -n services pods
 helm test cam --tls
  
 ```
@@ -585,11 +584,14 @@ helm test cam --tls
 #Delete Helm Chart
 helm delete --purge cam --tls
 
+#Delete Image-Pull-Secret
+${KUBECTLCLI} delete secrets docker-push-pull-secret -n services
+
 #Delete all PVCs in Namespace Service which name begins with "cam..."
-k delete pvc $(k get pvc | grep cam | awk '{print $1}')
+${KUBECTLCLI} delete pvc $(k get pvc | grep cam | awk '{print $1}')
 
 #Delete all PVs, which name begins with "cam..."
-k delete pv $(k get pv | grep cam | awk '{print $1}')
+${KUBECTLCLI} delete pv $(k get pv | grep cam | awk '{print $1}')
 
 #Delete Service-Keys and Service-IDs
 cloudctl iam service-api-key-delete service-deploy-api-key service-deploy
