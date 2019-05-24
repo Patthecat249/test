@@ -3,6 +3,7 @@
 <details><summary>Introduction</summary>
 <p>
 ## Introduction
+
 This describe the process of the Installation of Cloud Automation Manager 3.1.2.1 on ICP 3.1.2.
 Please go through the complete Installation-Procedure to become familiar with the procedure!
 Change the Variables as you need it!
@@ -12,6 +13,7 @@ Change the Variables as you need it!
 <details><summary>Requirements</summary>
 <p>
 ## Requirements
+
 - ICP3.1.2 must be installed
 - CLIs must be installed and configured
   - cloudctl
@@ -26,6 +28,7 @@ Change the Variables as you need it!
 <details><summary>How to use this manual</summary>
 <p>
 ## How to use this manual
+
 Open the CLI (ssh into) on your ICP-Master-Node. Copy the BASH-Content from this page into the CLI and execute it. Please customize the variables, if you want to make changes.
 </p>
 </details>
@@ -77,6 +80,11 @@ chown -R 999:999 \
   ${NFSPATH}/cam_db
    
 ```
+</p>
+</details>
+
+<details><summary>Configure NFS-Exports-File and Exports NFS-Folder</summary>
+<p>
 ## Configure NFS-Exports-File and Exports NFS-Folder
 ```bash
 echo "${NFSPATH} *(rw,nohide,insecure,no_subtree_check,async,no_root_squash)" >> /etc/exports
@@ -86,6 +94,8 @@ exportfs -a
 </p>
 </details>
 
+<details><summary>Download Installation File from IBM Fix Central</summary>
+<p>
 ## Download Installation File from IBM Fix Central
 https://www-945.ibm.com/support/fixcentral
 Download from IBM Fix Central > Search for "icp-cam-x86_64-3.1.2.1.tar.gz"
@@ -97,6 +107,11 @@ ll ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz
  
 -rw-r--r-- 1 root root 10266055420 May 20 10:20 /install/icp-cam-x86_64-3.1.2.1.tar.gz
 ```
+</p>
+</details>
+
+<details><summary>(Optional) Extract Chart for customizing values.yaml</summary>
+<p>
 ## (Optional) Extract Chart for customizing values.yaml
 ### List content
 ```bash
@@ -104,6 +119,8 @@ cd $INST
 tar -tf ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz
  
 ```
+</p>
+</details>
 
 ### Extract Content (only chart)
 ```bash
@@ -115,7 +132,11 @@ tar -xvf ${INST}/charts/ibm-cam-3.1.3.tgz
 ```
 *The Chart will be extracted, but we will come back later to editing the "values.yaml"-file.
 If you want to edit the values.yaml-file now, jump down to "Edit values.yaml"*
+</p>
+</details>
 
+<details><summary>Load and PUSH Images from TAR-File to ICP-Registry</summary>
+<p>
 ## Load and PUSH Images from TAR-File to ICP-Registry
 Let's push the images included in the tar-file to the ICP-Docker-Registry. The installation-process of CAM needs these images.
 1. Let's login to your ICP-Cluster in the "services" namespace
@@ -134,6 +155,11 @@ cd ${INST}
 cloudctl catalog load-archive --archive icp-cam-x86_64-3.1.2.1.tar.gz
  
 ```
+</p>
+</details>
+
+<details><summary>Start Installation Process</summary>
+<p>
 ## Start Installation Process
 Generate a deployment ServiceID API Key
 - Important: NOTICE and capture the API-Key from the output of the following commands!!! It is needed later in the "values.yaml"-file
@@ -151,6 +177,11 @@ cloudctl iam service-policy-create ${serviceIDName} -r Administrator,ClusterAdmi
 cloudctl iam service-api-key-create ${serviceApiKeyName} ${serviceIDName} -d 'Api key for service-deploy'
  
 ```
+</p>
+</details>
+
+<details><summary>Create ImagePullSecret</summary>
+<p>
 ## Create ImagePullSecret
 Is needed for the Installation process of CAM, so that the installation pods can access the ICP-Docker-Registry, where the Images are stored for the offline-installation.
 
@@ -167,7 +198,11 @@ ${KUBECTLCLI} create secret docker-registry ${SECRET_NAME} \
 --namespace=services
  
 ```
+</p>
+</details>
 
+<details><summary>Edit values.yaml</summary>
+<p>
 ## Edit the "values.yaml"
 *Please change the following values/parameters in the values.yaml-file*
 
@@ -180,9 +215,6 @@ ${KUBECTLCLI} create secret docker-registry ${SECRET_NAME} \
 - **camLogsPV.existingClaimName**=*"cam-logs-pvc"*
 - **camTerraformPV.existingClaimName**=*"cam-terraform-pvc"*
 - **camBPDAppDataPV.existingClaimName**=*"cam-bpd-appdata-pvc"*
-
-<details><summary>Edit values.yaml</summary>
-<p>
 
 #### This is the values.yaml-file of the CAM-3.1.3-Chart
 You can copy&paste the following content into a file, where you refer to later, when you install the CAM-Chart with the "helm install -f values.yaml"-command.
@@ -370,6 +402,8 @@ camIcoProvider:
 </p>
 </details>
 
+<details><summary>Create PVs and PVCs (One Script) (Login ICP-Master-Node)</summary>
+<p>
 ## Create PVs and PVCs (One Script) (Login ICP-Master-Node)
 - First, you have to customize the variables
 - Then copy&paste the output into the CLI of the ICP-Master-Nodes. 
@@ -579,7 +613,11 @@ ${KUBECTLCLI} get pv | grep cam
  
 ```
 **END COPY&PASTE**
+</p>
+</details>
 
+<details><summary>Start Installation</summary>
+<p>
 ## Start Installation
 Please execute the follwing "helm"-command.
 ```bash
@@ -587,7 +625,11 @@ cd ${INST}
 helm install --name cam -f charts/ibm-cam/values.yaml local-charts/ibm-cam --tls
  
 ```
+</p>
+</details>
 
+<details><summary>Verify Installation</summary>
+<p>
 ## Verify Installation
 You can check, if the installation of your CAM-deployment was successful. Please execute the following commands. All PODs must have a "1" in the column "Available"
 
@@ -596,6 +638,10 @@ ${KUBECTLCLI} get -n services pods
 helm test cam --tls
  
 ```
+</p>
+</details>
+<details><summary>How to clean up your CAM-Deployment</summary>
+<p>
 ## How to clean up your CAM-Deployment
 - uninstall the cam-helm-chart
 - remove pv's and pvc's **(PLEASE CHECK, that no OTHER PVs and PVCs-names begin with "cam"!!!)**
@@ -624,3 +670,5 @@ NFSPATH="/nfs/shared/cam"
 rm -rf $NFSPATH
  
 ```
+</p>
+</details>
