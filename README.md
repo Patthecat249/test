@@ -171,10 +171,10 @@ cloudctl catalog load-archive --archive icp-cam-x86_64-3.1.2.1.tar.gz
 </p>
 </details>
 
-<details><summary>Start Installation Process</summary>
+<details><summary>Create Service-ID and Service-API-key</summary>
 <p>
 
-## Start Installation Process
+## Create Service-ID and Service-API-key
 Generate a deployment ServiceID API Key
 - Important: NOTICE and capture the API-Key from the output of the following commands!!! It is needed later in the "values.yaml"-file
 - You need to capture the encrypted string, not just the name of the api-key.
