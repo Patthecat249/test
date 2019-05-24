@@ -267,7 +267,7 @@ managementConsole:
   port: 30000
 
 secureValues:
-  secretName:
+  secretName: ""
 database:
   bundled: true
 image:
