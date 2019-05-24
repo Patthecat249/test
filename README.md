@@ -1,6 +1,6 @@
 # How to Install Cloud Automation Manager (CAM) in an Offline-Installation with CLI
 
-## <details><summary>Introduction</summary>
+<details><summary>Introduction</summary>
 <p>
 ## Introduction
 This describe the process of the Installation of Cloud Automation Manager 3.1.2.1 on ICP 3.1.2.
@@ -9,7 +9,7 @@ Change the Variables as you need it!
 </p>
 </details>
 
-## <details><summary>Requirements</summary>
+<details><summary>Requirements</summary>
 <p>
 ## Requirements
 - ICP3.1.2 must be installed
@@ -23,7 +23,7 @@ Change the Variables as you need it!
 </p>
 </details>
 
-## <details><summary>How to use this manual</summary>
+<details><summary>How to use this manual</summary>
 <p>
 ## How to use this manual
 Open the CLI (ssh into) on your ICP-Master-Node. Copy the BASH-Content from this page into the CLI and execute it. Please customize the variables, if you want to make changes.
@@ -31,7 +31,7 @@ Open the CLI (ssh into) on your ICP-Master-Node. Copy the BASH-Content from this
 </details>
 
 ## Preparation
-### <details><summary>Create Installation/Download-Folder</summary>
+<details><summary>Create Installation/Download-Folder</summary>
 <p>
 ### Create Installation/Download-Folder 
 This folder is needed to place the installation-tar-file from IBM Fix Central.
@@ -44,7 +44,7 @@ mkdir -p ${INST}
 </p>
 </details>
 
-### <details><summary>Create NFS-folders</summary>
+<details><summary>Create NFS-folders</summary>
 <p>
 ## Create NFS-folders
 #These Folders will be used during the CAM-Installation
