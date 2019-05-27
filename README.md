@@ -628,6 +628,8 @@ APIKEY=`cat api.key | grep "API Key" | awk '{print $3}'`
 helm install --name cam --set global.iam.deployApiKey=${APIKEY} -f charts/ibm-cam/values.yaml local-charts/ibm-cam --tls
  
 ```
+*Note: The Deployment-Process needs round about 7 Minutes!*
+
 </p>
 </details>
 
