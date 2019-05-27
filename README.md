@@ -118,34 +118,16 @@ ll ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz
 <details><summary>(Optional) Extract Chart for customizing values.yaml</summary>
 <p>
 
-## (Optional) Extract Chart for customizing values.yaml
-### List content
+## Extract TAR-File
 ```bash
 cd $INST
-tar -tf ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz
+tar -xvf ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz
  
 ```
-</p>
-</details>
-
-<details><summary>Extract Content (only chart)</summary>
-<p>
-
-### Extract Content (only chart)
-```bash
-cd $INST
-tar -xvf ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz charts/ibm-cam-3.1.3.tgz
-cd charts
-tar -xvf ${INST}/charts/ibm-cam-3.1.3.tgz
- 
-```
-*The Chart will be extracted, but we will come back later to editing the "values.yaml"-file.
-If you want to edit the values.yaml-file now, jump down to "Edit values.yaml"*
 </p>
 </details>
 
 ## Installation
-
 <details><summary>Load and PUSH Images from TAR-File to ICP-Registry</summary>
 <p>
 
