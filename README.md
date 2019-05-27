@@ -165,12 +165,14 @@ Generate a deployment ServiceID API Key
 #VARIABLES BEGIN#
 export serviceIDName='service-deploy'
 export serviceApiKeyName='service-deploy-api-key'
+cd $INST
 #VARIABLES END#
 cloudctl login -a https://${ICPCLUSTER}:8443 --skip-ssl-validation -u ${CLOUDCTLUSER} -p ${CLOUDCTLPASS} -n services
 cloudctl iam service-id-create ${serviceIDName} -d 'Service ID for service-deploy'
 cloudctl iam service-policy-create ${serviceIDName} -r Administrator,ClusterAdministrator --service-name 'idmgmt'
 cloudctl iam service-policy-create ${serviceIDName} -r Administrator,ClusterAdministrator --service-name 'identity'
-cloudctl iam service-api-key-create ${serviceApiKeyName} ${serviceIDName} -d 'Api key for service-deploy'
+cloudctl iam service-api-key-create ${serviceApiKeyName} ${serviceIDName} -d 'Api key for service-deploy' > api.key
+APIKEY=`cat api.key | grep "API Key" | awk '{print $3}'`
  
 ```
 </p>
@@ -205,8 +207,8 @@ ${KUBECTLCLI} create secret docker-registry ${SECRET_NAME} \
 *Please change the following values/parameters in the values.yaml-file*
 
 - **global.image.secret**=*docker-push-pull-secret*
-- **global.iam.deployApiKey**=*CrypticCodeFromTheDeploymentApiKey*
-- **offline**=*true*
+- **global.iam.deployApiKey**=*${APIKEY}*
+- **offline**=*false*
 - **service.namespace**=*services*
 - **image.repository**=*"mycluster.icp:8500/services/"*
 - **camMongoPV.existingClaimName**=*"cam-mongo-pvc"*
@@ -622,7 +624,8 @@ ${KUBECTLCLI} get pv | grep cam
 Please execute the follwing "helm"-command.
 ```bash
 cd ${INST}
-helm install --name cam -f charts/ibm-cam/values.yaml local-charts/ibm-cam --tls
+APIKEY=`cat api.key | grep "API Key" | awk '{print $3}'`
+helm install --name cam --set global.iam.deployApiKey=${APIKEY} -f charts/ibm-cam/values.yaml local-charts/ibm-cam --tls
  
 ```
 </p>
