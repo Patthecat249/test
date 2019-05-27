@@ -624,8 +624,12 @@ ${KUBECTLCLI} get pv | grep cam
 Please execute the follwing "helm"-command.
 ```bash
 cd ${INST}
+#The DeployApiKey was created during the service-id-creation and is used for intercommunication/authorization between CAM and ICP
 APIKEY=`cat api.key | grep "API Key" | awk '{print $3}'`
-helm install --name cam --set global.iam.deployApiKey=${APIKEY} -f charts/ibm-cam/values.yaml local-charts/ibm-cam --tls
+#When set to true=The Installer won't go to github and will not download the Library-Templates from Github
+#When set to false=The Installer will get all the Templates from Github and Co.
+GLOBALOFFLINE=false
+helm install --name cam --set global.iam.deployApiKey=${APIKEY} --set global.offline=${GLOBALOFFLINE} -f charts/ibm-cam/values.yaml local-charts/ibm-cam --tls
  
 ```
 *Note: The Deployment-Process needs round about 7 Minutes!*
