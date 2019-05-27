@@ -97,7 +97,7 @@ exportfs -a
 </p>
 </details>
 
-<details><summary>Download Installation File from IBM Fix Central</summary>
+<details><summary>Download Installation File from IBM Fix Central and extract TAR-File</summary>
 <p>
 
 ## Download Installation File from IBM Fix Central
@@ -115,7 +115,7 @@ ll ${INST}/icp-cam-x86_64-3.1.2.1.tar.gz
 </p>
 </details>
 
-<details><summary>(Optional) Extract Chart for customizing values.yaml</summary>
+<details><summary>Extract TAR-File</summary>
 <p>
 
 ## Extract TAR-File
